@@ -1353,48 +1353,26 @@ createApp({
     },
 
         // 【新增 2】根據負責人篩選狀態過濾行程列表
+    // 【修正後】乾淨的篩選與排序
     filteredScheduleList() {
-            if (this.responsibleFilter === '全部') {
-                return this.sortedScheduleList; // 使用原有的排序後列表
-            }
+        // 1. 先複製一份清單，避免影響原始資料
+        let list = [...this.scheduleList];
+
+        // 2. 執行負責人篩選
+        if (this.responsibleFilter !== '全部') {
             const filterName = this.responsibleFilter;
-            const isFilterCollapsed = ref(true);
-            // 檢查行程的 people 陣列是否包含篩選的人名
-            return this.sortedScheduleList.filter(s => 
+            list = list.filter(s => 
                 s.people && Array.isArray(s.people) && s.people.includes(filterName)
             );
-            const scrollToCurrentSchedule = () => {
-        // 使用 nextTick 確保 DOM 已經完成渲染，目標元素存在
-      
-        nextTick(() => {
-            const currentItem = document.getElementById('current-schedule-item');
-            if (currentItem) {
-                // 找出包含所有行程內容、可滾動的父容器 (您程式碼中是 class="flex-1 p-4 overflow-y-auto")
-                // 由於行程內容是在 class="flex-1 p-4 overflow-y-auto" 的 div 內部，我們需要選取這個容器
-                const scheduleContainer = document.querySelector('.flex-1.p-4.overflow-y-auto'); 
-                
-                if (scheduleContainer) {
-                    // 計算滾動位置：將目標元素大致定位在容器的中間
-                    // currentItem.offsetTop 是相對於 scheduleContainer 的頂部距離
-                    const offsetTop = currentItem.offsetTop - scheduleContainer.clientHeight / 2 + currentItem.clientHeight / 2;
-                    
-                    scheduleContainer.scrollTo({
-                        top: offsetTop,
-                        behavior: 'smooth' // 使用平滑滾動
-                    });
-                }
-            }
-        });
-    };
-    
-    // 【新功能 2-2：監聽 tab 變化以觸發滾動】
-    watch(tab, (newTab) => {
-        if (newTab === 'schedule') {
-            // 當切換到「當日行程」分頁時，觸發滾動
-            scrollToCurrentSchedule();
         }
-    }, { immediate: true });
-        },
+
+        // 3. 執行時間排序 (由早到晚)
+        list.sort((a, b) => {
+            return a.startTime.localeCompare(b.startTime);
+        });
+
+        return list;
+    },
     sortedScheduleList() {
         // 獲取當前時間戳
         const now = this.nowTick;
