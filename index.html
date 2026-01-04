@@ -36,6 +36,31 @@ body {
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1); 
 }
 
+/* 【優化 3：收合動畫樣式】 */
+.filter-slide-enter-active,
+.filter-slide-leave-active {
+  transition: all 0.3s ease-out;
+  overflow: hidden; /* 確保內容不會溢出 */
+}
+
+/* 進入時的樣式：從 0px 高度展開 */
+.filter-slide-enter-from,
+.filter-slide-leave-to {
+  opacity: 0;
+  max-height: 0px; 
+  padding-top: 0; /* 過渡時移除 padding */
+  padding-bottom: 0; /* 過渡時移除 padding */
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* 展開時的樣式：設定一個足夠的高度（例如 100px），讓動畫可以平滑展開 */
+.filter-slide-enter-to,
+.filter-slide-leave-from {
+  opacity: 1;
+  max-height: 100px; 
+}
+
 /* Modal 專用樣式 */
 .modal-overlay {
     background: rgba(45, 55, 72, 0.4);
@@ -142,20 +167,39 @@ body {
         <div class="text-4xl mb-2">⏱️</div>
         <div class="text-sm">尚未新增行程</div>
       </div>
-      <div v-if="scheduleList.length > 0" 
-           class="sticky top-0 z-10 -mx-4 pt-2 pb-4 bg-white/80 backdrop-blur-md">
-        
-        <div class="p-1 mx-4 bg-white/40 rounded-2xl gap-1 border border-white/50 shadow-inner flex overflow-x-auto whitespace-nowrap">
-            <button @click="responsibleFilter='全部'"
-                    :class="responsibleFilter==='全部' ? 'bg-purple-500 text-white shadow-sm font-black' : 'text-gray-500'" 
-                    class="flex-shrink-0 px-3 py-2 text-[10px] font-bold rounded-xl transition-all">
-                所有人
+      <div v-if="scheduleList.length > 0" class="sticky top-4 z-50 h-0 overflow-visible ml-1">
+        <div class="absolute top-0 left-0 flex flex-col items-start gap-2">
+            
+            <button @click="isFilterCollapsed = !isFilterCollapsed" 
+                    class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md shadow-lg border border-white/60 text-purple-600 font-bold flex items-center justify-center transition-transform active:scale-95">
+                <span v-if="isFilterCollapsed" class="text-lg">🔍</span>
+                <span v-else class="text-lg">✕</span>
             </button>
-            <button v-for="p in uniqueResponsibles" :key="p" @click="responsibleFilter=p"
-                    :class="responsibleFilter===p ? 'bg-purple-500 text-white shadow-sm font-black' : 'text-gray-500'" 
-                    class="flex-shrink-0 px-3 py-2 text-[10px] font-bold rounded-xl transition-all">
-                {{ p }}
-            </button>
+            
+            <div v-if="isFilterCollapsed && responsibleFilter !== '全部'" 
+                 @click="isFilterCollapsed = false"
+                 class="bg-purple-500/90 text-white text-[10px] px-3 py-1 rounded-full shadow-md backdrop-blur font-bold cursor-pointer animate-fade-in">
+                 {{ responsibleFilter }}
+            </div>
+
+            <div v-show="!isFilterCollapsed" 
+                 class="bg-white/95 backdrop-blur-xl p-3 rounded-2xl shadow-2xl border border-white/60 w-40 flex flex-col gap-2 max-h-[60vh] overflow-y-auto animate-fade-in">
+                 
+                 <div class="text-[10px] text-gray-400 font-bold ml-1 mb-1">篩選負責人</div>
+                 
+                 <button @click="responsibleFilter='全部'; isFilterCollapsed=true"
+                         :class="responsibleFilter==='全部' ? 'bg-purple-500 text-white shadow' : 'bg-gray-100 text-gray-600'"
+                         class="py-2 px-3 rounded-xl text-xs font-bold text-left transition-all">
+                     全部
+                 </button>
+
+                 <button v-for="p in uniqueResponsibles" :key="p" 
+                         @click="responsibleFilter=p; isFilterCollapsed=true"
+                         :class="responsibleFilter===p ? 'bg-purple-500 text-white shadow' : 'bg-gray-100 text-gray-600'"
+                         class="py-2 px-3 rounded-xl text-xs font-bold text-left transition-all">
+                     {{ p }}
+                 </button>
+            </div>
         </div>
       </div>
       <div v-if="scheduleList.length > 0" class="border-l-2 border-gray-300 ml-4 space-y-6">
@@ -627,6 +671,7 @@ createApp({
       nowTick: Date.now(),
       
       responsibleFilter: '全部',
+      isFilterCollapsed: true,
       customResponsibleOrder: [
             '新娘', 'Vicky', 'Bonnie', 'Ling', 'Anna', 'Chelsie', 
             '新郎', '發', '史', 'Jeff', 'Jayden', 'David Lo', 'TC', 
@@ -927,7 +972,7 @@ createApp({
             tasks: '',
             items: '',
             note: '',
-            people: [''],
+            people: [],
             expanded: false
         },
         {
@@ -939,7 +984,7 @@ createApp({
             tasks: '',
             items: '',
             note: '',
-            people: [''],
+            people: [],
             expanded: false
         },
         {
@@ -1313,12 +1358,14 @@ createApp({
                 return this.sortedScheduleList; // 使用原有的排序後列表
             }
             const filterName = this.responsibleFilter;
+            const isFilterCollapsed = ref(true);
             // 檢查行程的 people 陣列是否包含篩選的人名
             return this.sortedScheduleList.filter(s => 
                 s.people && Array.isArray(s.people) && s.people.includes(filterName)
             );
             const scrollToCurrentSchedule = () => {
         // 使用 nextTick 確保 DOM 已經完成渲染，目標元素存在
+      
         nextTick(() => {
             const currentItem = document.getElementById('current-schedule-item');
             if (currentItem) {
