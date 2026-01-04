@@ -142,24 +142,28 @@ body {
         <div class="text-4xl mb-2">⏱️</div>
         <div class="text-sm">尚未新增行程</div>
       </div>
-      <div v-if="scheduleList.length > 0" class="mb-6 p-1 bg-white/40 rounded-2xl gap-1 border border-white/50 shadow-inner flex overflow-x-auto whitespace-nowrap">
-                <button @click="responsibleFilter='全部'"
-                        :class="responsibleFilter==='全部' ? 'bg-purple-500 text-white shadow-sm font-black' : 'text-gray-500'" 
-                        class="flex-shrink-0 px-3 py-2 text-[10px] font-bold rounded-xl transition-all">
-                    所有人
-                </button>
-                <button v-for="p in uniqueResponsibles" :key="p" @click="responsibleFilter=p"
-                        :class="responsibleFilter===p ? 'bg-purple-500 text-white shadow-sm font-black' : 'text-gray-500'" 
-                        class="flex-shrink-0 px-3 py-2 text-[10px] font-bold rounded-xl transition-all">
-                    {{ p }}
-                </button>
-            </div>
+      <div v-if="scheduleList.length > 0" 
+           class="sticky top-0 z-10 -mx-4 pt-2 pb-4 bg-white/80 backdrop-blur-md">
+        
+        <div class="p-1 mx-4 bg-white/40 rounded-2xl gap-1 border border-white/50 shadow-inner flex overflow-x-auto whitespace-nowrap">
+            <button @click="responsibleFilter='全部'"
+                    :class="responsibleFilter==='全部' ? 'bg-purple-500 text-white shadow-sm font-black' : 'text-gray-500'" 
+                    class="flex-shrink-0 px-3 py-2 text-[10px] font-bold rounded-xl transition-all">
+                所有人
+            </button>
+            <button v-for="p in uniqueResponsibles" :key="p" @click="responsibleFilter=p"
+                    :class="responsibleFilter===p ? 'bg-purple-500 text-white shadow-sm font-black' : 'text-gray-500'" 
+                    class="flex-shrink-0 px-3 py-2 text-[10px] font-bold rounded-xl transition-all">
+                {{ p }}
+            </button>
+        </div>
+      </div>
       <div v-if="scheduleList.length > 0" class="border-l-2 border-gray-300 ml-4 space-y-6">
         <div v-for="s in filteredScheduleList" :key="s.id" class="relative pl-6">
           <div class="absolute -left-[7px] top-4 w-3 h-3 rounded-full"
                :class="isOngoing(s.startTime,s.endTime)?'bg-violet-400 shadow-md':'bg-gray-400'"></div>
           <div @click="toggleCard(s.id)"
-               class="rounded-2xl p-4 bg-white/60 shadow-sm transition-all cursor-pointer relative"
+               :id="isOngoing(s.startTime, s.endTime) ? 'current-schedule-item' : null" class="rounded-2xl p-4 bg-white/60 shadow-sm transition-all cursor-pointer relative"
                :class="{'soft-glow border-2 border-purple-300': isOngoing(s.startTime,s.endTime), 'schedule-done': isFinished(s.startTime,s.endTime)}">
             <div class="text-xs text-gray-500 font-medium">
               {{ s.startTime }}<span v-if="s.endTime">～{{ s.endTime }}</span> 
@@ -660,87 +664,43 @@ createApp({
         {
           id: 1, category: "主家席 (女家)",
           guests: [
-            {name:"丘明泰", role:"爸爸", present:false}, {name:"蘇嘉禾", role:"媽媽", present:false},
-            {name:"丘兆匡", role:"哥哥", present:false}, {name:"丘庚有", role:"大伯", present:false},
-            {name:"張美珍", role:"伯娘", present:false}, {name:"丘義友", role:"二伯", present:false},
-            {name:"", role:"二伯女朋友", present:false}, {name:"丘鳳英", role:"姑姐", present:false},
-            {name:"鄧祥", role:"舅公", present:false}, {name:"", role:"舅婆", present:false},
-            {name:"區子維", role:"表哥", present:false}, {name:"", role:"表嫂", present:false}
+            
           ]
         },
         {
           id: 2, category: "主家席 (男家)",
           guests: [
-            {name:"周諾禧", role:"新郎", present:false}, {name:"丘穎怡", role:"新娘", present:false},
-            {name:"周凱銘", role:"爸爸", present:false}, {name:"周劍萍", role:"媽媽", present:false},
-            {name:"周諾澄", role:"妹妹", present:false}, {name:"鄧潔儀", role:"婆婆", present:false},
-            {name:"李嬋玉", role:"嫲嫲", present:false}, {name:"周盈盈", role:"姑媽", present:false},
-            {name:"周偉文", role:"大舅父", present:false}, {name:"周偉賢", role:"二舅父", present:false},
-            {name:"郭佩華", role:"二舅母", present:false}, {name:"周凱旋", role:"大伯", present:false}
-          ]
+            ]
         },
         {
           id: 3, category: "女家親友、姊妹",
           guests: [
-            {name:"邱東平", role:"爸爸朋友", present:false}, {name:"傅亞平", role:"", present:false},
-            {name:"邱奕思", role:"", present:false}, {name:"丘德成", role:"爸爸朋友", present:false},
-            {name:"蘇家碧", role:"姨媽", present:false}, {name:"黎偉俊", role:"", present:false},
-            {name:"Suky", role:"", present:false}, {name:"陳榭椿", role:"二姨", present:false},
-            {name:"蘇家茹", role:"", present:false}, {name:"李蔚然", role:"表姐", present:false}
-          ]
+            ]
         },
         {
           id: 4, category: "男家親戚",
           guests: [
-            {name:"", role:"伯娘", present:false}, {name:"周梓朗", role:"堂弟", present:false},
-            {name:"周溢朗", role:"堂弟", present:false}, {name:"", role:"姑婆", present:false},
-            {name:"", role:"姑丈公", present:false}, {name:"黃舜華", role:"大表姑姐", present:false},
-            {name:"陳穎彤", role:"表姐", present:false}, {name:"黃舜琼", role:"二表姑姐", present:false},
-            {name:"黃舜瑜", role:"細表姑姐", present:false}, {name:"張高俊", role:"姑丈", present:false},
-            {name:"", role:"細表姑姐女兒", present:false}, {name:"李潔佩", role:"Kitty表姑媽", present:false}
-          ]
+            ]
         },
         {
           id: 5, category: "男家媽媽親戚",
           guests: [
-            {name:"", role:"姻伯母", present:false}, {name:"", role:"二舅母女", present:false},
-            {name:"", role:"女婿", present:false}, {name:"", role:"姑姐", present:false},
-            {name:"", role:"二家姐", present:false}, {name:"", role:"二姐夫", present:false},
-            {name:"", role:"表姐", present:false}, {name:"", role:"表哥", present:false},
-            {name:"", role:"細舅父", present:false}, {name:"", role:"細舅母", present:false},
-            {name:"", role:"姻世伯", present:false}, {name:"", role:"姻伯母", present:false}
-          ]
+            ]
         },
         {
           id: 6, category: "女家親戚",
           guests: [
-            {name:"陳茂興", role:"表哥", present:false}, {name:"蘇耀駒", role:"四舅父", present:false},
-            {name:"郭志貞", role:"四舅母", present:false}, {name:"蘇瑋豐", role:"表弟", present:false},
-            {name:"蘇瑋欣", role:"表妹", present:false}, {name:"李紫婷", role:"姊妹", present:false},
-            {name:"梁凱鈴", role:"中同", present:false}
-          ]
+            ]
         },
         {
           id: 7, category: "女家媽媽親友、姊妹",
           guests: [
-            {name:"蘇家星", role:"三姨", present:false}, {name:"沈偉樑", role:"三姨丈", present:false},
-            {name:"陳偉成", role:"朋友", present:false}, {name:"張玉娟", role:"朋友妻", present:false},
-            {name:"梁國志", role:"朋友", present:false}, {name:"張玉嬋", role:"朋友妻", present:false},
-            {name:"蘇耀堅", role:"七舅父", present:false}, {name:"May", role:"舅母", present:false},
-            {name:"李茵茵", role:"表姐", present:false}, {name:"曾瑋晴", role:"姊妹", present:false},
-            {name:"周穎章", role:"中同", present:false}, {name:"陳鈺珊", role:"中同", present:false}
-          ]
+            ]
         },
         {
           id: 8, category: "女家媽媽親戚",
           guests: [
-            {name:"劉展強", role:"六姨丈", present:false}, {name:"蘇家順", role:"六姨", present:false},
-            {name:"劉子健", role:"表哥", present:false}, {name:"劉子洋", role:"表哥", present:false},
-            {name:"莫文傑", role:"表姐夫", present:false}, {name:"沈麗敏", role:"Yoyo表姐", present:false},
-            {name:"莫斐", role:"莫然媽", present:false}, {name:"莫然", role:"小朋友", present:false},
-            {name:"容鉻強", role:"William表姐夫", present:false}, {name:"沈麗珠", role:"Jojo表姐", present:false},
-            {name:"Soso", role:"小朋友", present:false}, {name:"Momo", role:"小朋友", present:false}
-          ]
+            ]
         },
         {
           id: 9, category: "男家爸爸同事",
@@ -751,44 +711,22 @@ createApp({
         {
           id: 10, category: "中學老師、新娘教會",
           guests: [
-            {name:"洪穎芝", role:"CTYC", present:false}, {name:"陳志豪", role:"CTYC", present:false},
-            {name:"張智堯", role:"Terry", present:false}, {name:"關小玲", role:"老師", present:false},
-            {name:"楊啟玲", role:"老師", present:false}, {name:"黃偉強", role:"老師", present:false},
-            {name:"林校長", role:"老師", present:false}, {name:"Emily", role:"老師", present:false},
-            {name:"陳頌甄", role:"Didi", present:false}
-          ]
+            ]
         },
         {
           id: 11, category: "新郎教會",
           guests: [
-            {name:"史文傑", role:"兄弟", present:false}, {name:"鄭燕星", role:"安柱堂", present:false},
-            {name:"王棟永", role:"一家四人", present:false}, {name:"劉曉君", role:"安柱堂", present:false},
-            {name:"黃偉聰", role:"安柱堂", present:false}, {name:"陳純雅", role:"MC", present:false},
-            {name:"張樂謙", role:"安柱堂", present:false}, {name:"區國年", role:"安柱堂", present:false},
-            {name:"周惠文", role:"安柱堂", present:false}, {name:"陳有樑", role:"安柱堂", present:false}
-          ]
+            ]
         },
         {
           id: 12, category: "新郎教會 (續)",
           guests: [
-            {name:"David Lo", role:"兄弟", present:false}, {name:"劉嘉慧", role:"安柱堂", present:false},
-            {name:"王美玲", role:"安柱堂", present:false}, {name:"陳昆賸", role:"安柱堂", present:false},
-            {name:"林子萌", role:"安柱堂", present:false}, {name:"何焯華", role:"安柱堂", present:false},
-            {name:"梁詩樺", role:"安柱堂", present:false}, {name:"郭子健", role:"兄弟", present:false},
-            {name:"黎卓恩", role:"安柱堂", present:false}, {name:"鄭嘉發", role:"兄弟", present:false},
-            {name:"香仲華", role:"安柱堂", present:false}
-          ]
+            ]
         },
         {
           id: 13, category: "新娘同學、同事",
           guests: [
-            {name:"楊芷彤", role:"Saki", present:false}, {name:"李綵綸", role:"中同", present:false},
-            {name:"陳盈嘉", role:"中同", present:false}, {name:"蔡宛真", role:"中同", present:false},
-            {name:"葉湘雪", role:"CTYC", present:false}, {name:"蕭寶沂", role:"中同", present:false},
-            {name:"莫程嵐", role:"姊妹", present:false}, {name:"黃彥婷", role:"Edith", present:false},
-            {name:"鄭栩妍", role:"Nicole", present:false}, {name:"許盈盈", role:"Cassie", present:false},
-            {name:"簡泳妍", role:"Kira", present:false}, {name:"陳柏鴻", role:"舊同事", present:false}
-          ]
+            ]
         }
       ],
       seatSearch: '',
@@ -1232,30 +1170,25 @@ createApp({
             people: ['新郎','禧媽','禧爸','Jeff','Jayden','David Lo','史','TC','發','新娘','怡媽','怡爸','Vicky','Bonnie','Ling','Anna','Chelsie'],
             expanded: false
         },
+        
       ],
       golds: [],
       goldCategories: ['耳環','頸鍊','吊墜','手扼','手鍊','戒指','擺件'],
       gifts: [],
       contacts: [
           // 聯絡人列表
-          { side: '男家', role: '新郎', name: '', phone: '', deleted: false },
+          { side: '男家', role: '新郎', name: 'H', phone: '', deleted: false },
           { side: '男家', role: '伴郎．兄弟', name: '', phone: '', deleted: false },
           { side: '男家', role: '兄弟（婚禮統籌）', name: '', phone: '', deleted: false },
-          { side: '男家', role: '兄弟', name: ' Lo', phone: '', deleted: false },
           { side: '男家', role: '兄弟', name: '', phone: '', deleted: false },
           { side: '男家', role: '兄弟', name: '', phone: '', deleted: false },
-          { side: '男家', role: '新郎爸爸', name: '', phone: '', deleted: false },
-          { side: '男家', role: '新郎媽媽', name: '', phone: '', deleted: false },
-          { side: '男家', role: '新郎妹妹', name: '', phone: '', deleted: false },
-          { side: '女家', role: '新娘', name: '', phone: '', deleted: false },
+          { side: '男家', role: '兄弟', name: '', phone: '', deleted: false },
+          { side: '女家', role: '新娘', name: 'V', phone: '', deleted: false },
           { side: '女家', role: '伴娘．姊妹', name: '', phone: '', deleted: false },
           { side: '女家', role: '姊妹', name: '', phone: '', deleted: false },
           { side: '女家', role: '姊妹', name: '', phone: '', deleted: false },
           { side: '女家', role: '姊妹', name: '', phone: '', deleted: false },
           { side: '女家', role: '姊妹', name: '', phone: '', deleted: false },
-          { side: '女家', role: '新娘爸爸', name: '', phone: '', deleted: false },
-          { side: '女家', role: '新娘媽媽', name: '', phone: '', deleted: false },
-          { side: '女家', role: '新娘哥哥', name: '', phone: '', deleted: false },
           { side: '其他', role: '逸東酒店', name: 'Katy', phone: '68084055', deleted: false },
           { side: '其他', role: '恆寶（旅遊巴公司）', name: 'Apple', phone: '65557418', deleted: false },
           { side: '其他', role: 'Wemember', name: 'May Chu', phone: '69241730', deleted: false },
@@ -1263,19 +1196,13 @@ createApp({
           { side: '其他', role: '新娘化妝師', name: 'Candy Mak', phone: '61574889', deleted: false },
           { side: '其他', role: '攝影師', name: 'Calvin Mak', phone: '54480122', deleted: false },
           { side: '其他', role: '錄影師', name: 'Yu', phone: '59910511', deleted: false },
-          { side: '其他', role: '讀經', name: '', phone: '', deleted: false },
-          { side: '其他', role: '讀經', name: '', phone: '', deleted: false },
-          { side: '其他', role: '祈禱', name: '', phone: '', deleted: false },
-          { side: '其他', role: '訓勉', name: '', phone: '', deleted: false },
-          { side: '其他', role: '主席', name: '', phone: '', deleted: false },
-          { side: '其他', role: '證婚牧師', name: '', phone: '', deleted: false },
           { side: '其他', role: '司琴', name: '', phone: '', deleted: false },
           { side: '其他', role: '花車', name: '', phone: '', deleted: false },
           { side: '其他', role: '花車', name: '', phone: '', deleted: false },
           { side: '其他', role: '65座司機1', name: '65座司機1', phone: 'TBC', deleted: false },
           { side: '其他', role: '65座司機2', name: '65座司機2', phone: 'TBC', deleted: false },
           { side: '其他', role: '28座司機（時租12:15–18:15）', name: '28座司機', phone: 'TBC', deleted: false },
-          { side: '其他', role: '晚宴MC', name: '陳純雅 Kathy', phone: '60748285', deleted: false },
+          { side: '其他', role: '晚宴MC', name: 'Kathy', phone: '60748285', deleted: false },
       ],
       contactCats: ['男家', '女家', '其他'],
       contactFilter: '女家',
@@ -1390,6 +1317,36 @@ createApp({
             return this.sortedScheduleList.filter(s => 
                 s.people && Array.isArray(s.people) && s.people.includes(filterName)
             );
+            const scrollToCurrentSchedule = () => {
+        // 使用 nextTick 確保 DOM 已經完成渲染，目標元素存在
+        nextTick(() => {
+            const currentItem = document.getElementById('current-schedule-item');
+            if (currentItem) {
+                // 找出包含所有行程內容、可滾動的父容器 (您程式碼中是 class="flex-1 p-4 overflow-y-auto")
+                // 由於行程內容是在 class="flex-1 p-4 overflow-y-auto" 的 div 內部，我們需要選取這個容器
+                const scheduleContainer = document.querySelector('.flex-1.p-4.overflow-y-auto'); 
+                
+                if (scheduleContainer) {
+                    // 計算滾動位置：將目標元素大致定位在容器的中間
+                    // currentItem.offsetTop 是相對於 scheduleContainer 的頂部距離
+                    const offsetTop = currentItem.offsetTop - scheduleContainer.clientHeight / 2 + currentItem.clientHeight / 2;
+                    
+                    scheduleContainer.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth' // 使用平滑滾動
+                    });
+                }
+            }
+        });
+    };
+    
+    // 【新功能 2-2：監聽 tab 變化以觸發滾動】
+    watch(tab, (newTab) => {
+        if (newTab === 'schedule') {
+            // 當切換到「當日行程」分頁時，觸發滾動
+            scrollToCurrentSchedule();
+        }
+    }, { immediate: true });
         },
     sortedScheduleList() {
         // 獲取當前時間戳
@@ -1968,11 +1925,13 @@ createApp({
         const et=e?(parseInt(e.split(':')[0])*60+parseInt(e.split(':')[1])):parseInt(s.split(':')[0])*60+parseInt(s.split(':')[1])+60;
         return n>et;
     },
+    
     getPersonColor(p){
         if(this.femaleSide.includes(p)) return 'bg-pink-400';
         if(this.maleSide.includes(p)) return 'bg-blue-400';
         return 'bg-emerald-400';
     },
+    
     // 將數據同步到 LocalStorage
     sync(k, v){
         localStorage.setItem(k, JSON.stringify(v))
@@ -2062,6 +2021,11 @@ createApp({
     setInterval(() => {
         this.nowTick = Date.now();
         this.scheduleList = [...this.scheduleList]; // 觸發 Vue 更新
+        // 【新功能 3-1：在每分鐘更新時，如果當前是 schedule 頁面，檢查是否需要滾動】
+        if (this.tab === 'schedule') {
+            // 注意：我們在這裡使用 this.scrollToCurrentSchedule，確保它在 Vue 實例的範圍內被呼叫
+            this.scrollToCurrentSchedule(); 
+        }
     }, 60000);
     // 【優化 7-3】在 mounted 設置所有 photoSchedules 組別預設為收合
   this.photoSchedules.forEach(group => {
