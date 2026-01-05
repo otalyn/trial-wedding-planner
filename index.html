@@ -187,14 +187,14 @@ body {
                  
                  <div class="text-[10px] text-gray-400 font-bold ml-1 mb-1">篩選負責人</div>
                  
-                 <button @click="responsibleFilter='全部'; isFilterCollapsed=true"
+                 <button @click="responsibleFilter='全部'; isFilterCollapsed=true; scrollToCurrentSchedule();"
                          :class="responsibleFilter==='全部' ? 'bg-purple-500 text-white shadow' : 'bg-gray-100 text-gray-600'"
                          class="py-2 px-3 rounded-xl text-xs font-bold text-left transition-all">
                      全部
                  </button>
 
                  <button v-for="p in uniqueResponsibles" :key="p" 
-                         @click="responsibleFilter=p; isFilterCollapsed=true"
+                         @click="responsibleFilter=p; isFilterCollapsed=true; scrollToCurrentSchedule();"
                          :class="responsibleFilter===p ? 'bg-purple-500 text-white shadow' : 'bg-gray-100 text-gray-600'"
                          class="py-2 px-3 rounded-xl text-xs font-bold text-left transition-all">
                      {{ p }}
@@ -851,8 +851,8 @@ createApp({
             endTime: '09:00',
             place: '沙田凱悅酒店 - 客房',
             title: '【新郎】 化妝',
-            tasks: '房卡',
-            items: '',
+            tasks: '',
+            items: '房卡',
             note: '',
             people: ['新郎'],
             expanded: false
@@ -1091,7 +1091,7 @@ createApp({
             endTime: '18:15',
             place: '',
             title: '離場+前往逸東',
-            tasks: '【Group 1: 兄弟姊妹、攝影師、化妝師】乘28座往逸東 (影完16.TTT相連物資即走)\n【Group 2: 新郎、新娘、TC、陳昆賸、王美玲】乘TC車往逸東 (影完相即走)\n【Group 3: 史、Jeff、Jayden、匡、澄、家人、賓客】乘65座x2往逸東\n  (Jeff、Jayden指示家人及賓客上車後隨65座到逸東)',
+            tasks: '【Group 1: Vicky、Anna、Bonnie、Chelsie、Ling、發、David Lo、攝影師、化妝師】乘28座往逸東 (影完16.TTT相連物資即走)\n【Group 2: 新郎、新娘、TC、陳昆賸、王美玲】乘TC車往逸東 (影完相即走)\n【Group 3: 史、Jeff、Jayden、匡、澄、家人、賓客】乘65座x2往逸東\n  (Jeff、Jayden指示家人及賓客上車後隨65座到逸東)',
             items: ' 團體訪客入校申請表\nTC車\n28座 65座x2\n行禮物資\n晚宴物資\n禮服',
             note: '',
             people: ['新郎','新娘','Jeff','Jayden','David Lo','史','TC','發','Vicky','Bonnie','Ling','Anna','Chelsie'],
@@ -1225,17 +1225,17 @@ createApp({
       contacts: [
           // 聯絡人列表
           { side: '男家', role: '新郎', name: 'H', phone: '', deleted: false },
-          { side: '男家', role: '伴郎．兄弟', name: '', phone: '', deleted: false },
-          { side: '男家', role: '兄弟（婚禮統籌）', name: '', phone: '', deleted: false },
-          { side: '男家', role: '兄弟', name: '', phone: '', deleted: false },
-          { side: '男家', role: '兄弟', name: '', phone: '', deleted: false },
-          { side: '男家', role: '兄弟', name: '', phone: '', deleted: false },
+          { side: '男家', role: '伴郎．兄弟', name: 'F', phone: '', deleted: false },
+          { side: '男家', role: '兄弟（婚禮統籌）', name: 'S', phone: '', deleted: false },
+          { side: '男家', role: '兄弟', name: 'DL', phone: '', deleted: false },
+          { side: '男家', role: '兄弟', name: 'J', phone: '', deleted: false },
+          { side: '男家', role: '兄弟', name: 'J', phone: '', deleted: false },
           { side: '女家', role: '新娘', name: 'V', phone: '', deleted: false },
-          { side: '女家', role: '伴娘．姊妹', name: '', phone: '', deleted: false },
-          { side: '女家', role: '姊妹', name: '', phone: '', deleted: false },
-          { side: '女家', role: '姊妹', name: '', phone: '', deleted: false },
-          { side: '女家', role: '姊妹', name: '', phone: '', deleted: false },
-          { side: '女家', role: '姊妹', name: '', phone: '', deleted: false },
+          { side: '女家', role: '伴娘．姊妹', name: 'V', phone: '', deleted: false },
+          { side: '女家', role: '姊妹', name: 'A', phone: '', deleted: false },
+          { side: '女家', role: '姊妹', name: 'B', phone: '', deleted: false },
+          { side: '女家', role: '姊妹', name: 'C', phone: '', deleted: false },
+          { side: '女家', role: '姊妹', name: 'L', phone: '', deleted: false },
           { side: '其他', role: '逸東酒店', name: 'Katy', phone: '68084055', deleted: false },
           { side: '其他', role: '恆寶（旅遊巴公司）', name: 'Apple', phone: '65557418', deleted: false },
           { side: '其他', role: 'Wemember', name: 'May Chu', phone: '69241730', deleted: false },
@@ -1996,26 +1996,27 @@ createApp({
 
     scrollToCurrentSchedule() {
     this.$nextTick(() => {
-        // 1. 先找正在進行中的項目 (ID 為 current-schedule-item)
+        // 1. 優先找畫面上「正在進行中」的項目
         let target = document.getElementById('current-schedule-item');
 
-        // 2. 如果找不到 (沒有 Ongoing)，則尋找下一個最接近的行程
+        // 2. 如果沒有正在進行的，則從「目前篩選過後的列表」找下一個最接近的
         if (!target) {
             const now = new Date();
             const nowStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             
-            // 找出所有還沒開始的行程，並按時間排序
-            const upcoming = this.scheduleList
+            // 使用篩選過的列表 (重要：這是您 computed 裡的變數)
+            const upcoming = this.filteredScheduleList
                 .filter(s => s.startTime > nowStr)
                 .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
             if (upcoming.length > 0) {
                 const nextId = upcoming[0].id;
+                // 使用我們在卡片上定義的 data-id 來尋找 DOM 元素
                 target = document.querySelector(`[data-id="${nextId}"]`);
             }
         }
 
-        // 3. 執行平滑捲動
+        // 3. 執行平滑滾動
         if (target) {
             target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
