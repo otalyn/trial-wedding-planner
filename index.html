@@ -207,7 +207,9 @@ body {
           <div class="absolute -left-[7px] top-4 w-3 h-3 rounded-full"
                :class="isOngoing(s.startTime,s.endTime)?'bg-violet-400 shadow-md':'bg-gray-400'"></div>
           <div @click="toggleCard(s.id)"
-               :id="isOngoing(s.startTime, s.endTime) ? 'current-schedule-item' : null" class="rounded-2xl p-4 bg-white/60 shadow-sm transition-all cursor-pointer relative"
+               :id="isOngoing(s.startTime, s.endTime) ? 'current-schedule-item' : null" 
+               :data-id="s.id"
+               class="rounded-2xl p-4 bg-white/60 shadow-sm transition-all cursor-pointer relative"
                :class="{'soft-glow border-2 border-purple-300': isOngoing(s.startTime,s.endTime), 'schedule-done': isFinished(s.startTime,s.endTime)}">
             <div class="text-xs text-gray-500 font-medium">
               {{ s.startTime }}<span v-if="s.endTime">～{{ s.endTime }}</span> 
@@ -1991,6 +1993,35 @@ createApp({
             });
         }
     },
+
+    scrollToCurrentSchedule() {
+    this.$nextTick(() => {
+        // 1. 先找正在進行中的項目 (ID 為 current-schedule-item)
+        let target = document.getElementById('current-schedule-item');
+
+        // 2. 如果找不到 (沒有 Ongoing)，則尋找下一個最接近的行程
+        if (!target) {
+            const now = new Date();
+            const nowStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            // 找出所有還沒開始的行程，並按時間排序
+            const upcoming = this.scheduleList
+                .filter(s => s.startTime > nowStr)
+                .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+            if (upcoming.length > 0) {
+                const nextId = upcoming[0].id;
+                target = document.querySelector(`[data-id="${nextId}"]`);
+            }
+        }
+
+        // 3. 執行平滑捲動
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+},
+
     downloadCSV(filename, headers, data){
         const csvRows = [];
         csvRows.push(headers.join(',')); 
